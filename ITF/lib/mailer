@@ -1,0 +1,71 @@
+#!/bin/bash
+#Autor: Kawaxi
+
+shortner--()
+{
+
+# Loop to we reach the end of the email list, saving every sent msg.
+
+for email in $(cat emails.txt); do
+  let id++
+  i=$((${id}-1))
+  url="http://${server}/trackerimage.jpg.php?&subscriptionID=${id}&campaignID=1" ;
+  nurl=$(php -r "echo urlencode(\"$url\");") 2>/dev/null # If need to URL encode the url
+  short="$(curl -s -S 'http://api.bit.ly/v3/shorten?login='${login}'&apiKey='${API_KEY}'&longURL='${nurl}'&format=txt')" ;
+  #echo "${url}"
+    if [[ "${i}" -eq 0 ]]; then
+          #echo 'aqui empezamos la parte de id 1'
+          #echo -e "\n\n ${GREEN}[*]${RESET} ${GREEN} Encontramos Mensaje original, Remplazando... ${RESET}" 1>&2
+          # Replacing Line 5 with coreutils coreutils https://askubuntu.com/questions/434051/how-to-replace-a-string-on-the-5th-line-of-multiple-text-files
+          # Dado que se encontro mensaje original, se presume que el numero de lineas es igual entre ambos archivos.
+          (head -${L} "$mensaje"; echo "<a href="${short}"><img src="${short}" width="200" height="100" border="0" /></a>"; tail -n +${L2} "$mensaje") > foobar && mv foobar "$mensaje"
+          [ -e "${mensaje}" ] && cp $mensaje{,.bkup"${id}"}
+
+    else
+
+        if [[ "${i}" -eq 1 ]]; then
+        # Since now it will be using bit.ly we need to change the pattern.
+        (head -${L} "$mensaje"; echo "<a href="${short}"><img src="${short}" width="200" height="100" border="0" /></a>"; tail -n +${L2} "$mensaje") > foobar && mv foobar "$mensaje"
+        else
+            if [[ "${i}" -ge 2 ]]; then
+
+              # Since now it will be using bit.ly we need to change the pattern.
+              (head -${L} "$mensaje"; echo "<a href="${short}"><img src="${short}" width="200" height="100" border="0" /></a>"; tail -n +${L2} "$mensaje") > foobar && mv foobar "$mensaje"
+        fi   fi
+    fi
+
+    [ -e "${mensaje}" ] && cp $mensaje{,.bkup"${id}"}
+
+  # (head -${P} "$mensaje"; echo "<a href="${short}"><img src="${short}" width="200" height="100" border="0" /></a>"; tail -n +${P2} "$mensaje") > foobar && mv foobar "$mensaje"
+  # [ -e "${mensaje}" ] && cp -n $mensaje{,.bkup"${id}"}
+
+
+  if [ "${attachment}" != "true" ]; then
+    echo -e "\n\n${GREEN}[*]${WHITE} Sending Email${GREEN} without:${WHITE} attachment...${RESET}" 1>&2
+    #Sending Emails using sendEmail
+     sendEmail -t "$email"  -f "$senderfull" -s "$smtp" -u "$subject"  \
+     -o message-content-type=html -o message-file=""$mensaje{,.bkup"${id}"}"" \
+     -o reply-to="$senderfull" -o tls=auto \
+       || echo -e ' '${RED}'[!] Issue when sending emails, can you reach SMTP? '${RESET} 1>&2
+
+  else
+    echo -e "${GREEN}\n\n[*]${RESET}${WHITE} Sending Email${GREEN} with:${WHITE} attachment...${RESET}" 1>&2
+    # #Sending Emails using sendEmail
+      sendEmail -t "$email"  -f "$senderfull" -s "$smtp" -u "$subject"  \
+     -o message-content-type=html -o message-file=""$mensaje{,.bkup"${id}"}"" \
+     -o reply-to="$senderfull" -o tls=auto -a "$attach" \
+      || echo -e ' '${RED}'[!] Issue when sending emails, can you reach SMTP? '${RESET} 1>&2
+
+  fi
+
+  ##Sending Emails using Swaks
+  #swaks  -f $sender -t $email --body ""$mensaje{,.bkup"${id}"}"" --add-header "MIME-Version: 1.0" \
+  #--add-header "Content-Type: text/html" add--header "Subject: Test mail" --server 127.0.0.1:25
+
+
+  echo -e "${WHITE}Id= ${GREEN}${id}${WHITE} & email sent to:${GREEN} ${email} ${WHITE}& URL${GREEN} ${short} ${RESET}"
+  #echo id="${id} y el email es: ${email} y la url es ${short}"
+
+done
+
+}

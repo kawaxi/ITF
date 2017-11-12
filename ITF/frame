@@ -1,0 +1,195 @@
+#!/bin/bash
+#Autor: @Kawaxi
+
+# ---------- Declaring ---------- #
+#--- Colors, Functions, banners, Headings.
+source lib/visual
+#--- Help Functions.
+source lib/help
+#--- Our Main Mailers.
+source lib/basic
+source lib/mailer
+#--- Declaring Variables.
+SCRIPT=$(dirname `realpath $0`)
+mensaje=$(find $SCRIPT -maxdepth 2 -type f -name "mensaje" -print -quit);
+emails=$(find $SCRIPT -maxdepth 3 -type f -name "emails*" -print -quit);
+MO=$(find $SCRIPT -maxdepth 3 -type f -name "mensaje-original" -print -quit);
+id=0;
+i=0;
+
+sentemails="$SCRIPT/Emails";
+senderfull='Frankie Rivers <hr-image@wsib.on.ca>' ;
+subject='Hi, this is a test mail from your script '
+# This is your Image tracking server ip or domain.
+server='' ;
+# This is your stmp server, if your using Open relay use ' localhost:25 ' .
+smtp='localhost:25' ;
+
+# remplazar las variables server y smtp en el script.
+API_KEY=R_b81894cd600b4fcda75a45abdcdaeb75;
+login=setintlabs ;
+
+
+
+#--- Read command line arguments
+  if ((!$#)) ; then # No arguments?
+    banner--
+    heading--
+    shorth--
+    exit 1
+
+  else
+#--- Taking the arguments
+  	while [[ "${#}" -gt 0 && ."${1}" == .-* ]]; do
+    	opt="${1}";
+    	shift;
+    	case "$(echo ${opt} | tr '[:upper:]' '[:lower:]')" in
+      	-|-- ) break 2;;
+
+   	   -attachment|--attachment )
+  	      attachment=true;;
+
+        -a|--A )
+  	      attachment=true
+          attach="${1}"; shift;;
+  	    -a=*|--A=* )
+  	      attach="${opt#*=}";;
+
+        -from|--from )
+  	      senderfull="${1}"; shift;;
+  	    -from=*|--from=* )
+  	      senderfull="${opt#*=}";;
+
+  	    -smtp|--smtp )
+  	      smtp="${1}"; shift;;
+        -smtp=*|--smtpe=* )
+  	      smtp="${opt#*=}";;
+
+        -subject|--subject )
+    	    subject="${1}"; shift;;
+        -subject=*|--subject=* )
+    	    subject="${opt#*=}";;
+
+          -server|--server )
+      	    server="${1}"; shift;;
+          -server=*|--server=* )
+      	    server="${opt#*=}";;
+
+  	    -f=*|--f=* )
+  		  f=true;;
+
+  	     -h)
+          banner--
+          heading--
+          help--;;
+
+  	     -f)
+          banner--
+          heading--
+          TEXT="[*] Image Tracking whith url shortening !"
+          notice--
+          attachment=true
+          FULL=3;;
+
+  	     -x)
+         banner--
+         heading--
+          TEXT="[*] Image Tracking with url shortening  !"
+          notice--
+          FULL=2;;
+
+  	     -xx)
+          banner--
+          heading--
+          TEXT="[*] Image Tracking whithout URL shortening  !"
+          notice--
+          FULL=1
+          EX=1
+          ;;
+
+          -xxx)
+          banner--
+          heading--
+          TEXT="[*] Basic email with attachment !"
+          notice--
+          FULL=1
+          EX=2
+          ;;
+
+  	      *)
+          banner--
+          TEXT="¡¡¡¡  Please provide a valid argument for the script !!!!"
+          notice--
+          shorth--
+
+  	            exit 1;;
+  	   esac
+  	done
+
+  fi
+
+
+
+# ---------- Start ---------- #
+
+mkdir $sentemails > /dev/null 2>&1
+if [[ -f "$MO" ]]; then
+  #echo ' Original file found, Second cycle \n\n'
+  echo -e "\n${YELLOW}[i]${RESET} ${WHITE} "$MO" ${GREEN} Detected....${RESET}\n\n"
+  [[ -e "${MO}" ]] && cp $MO $mensaje
+
+  L=$(($(perl -lne 'm|trackerimage.jpg.php| && print $.' "$mensaje")-1))
+  L2=$(($(perl -lne 'm|trackerimage.jpg.php| && print $.' "$mensaje")+1))
+
+
+else
+  #echo ' Original file found,  First Cycle. \n\n'
+  [ -e "${mensaje}" ] && cp -n ""$mensaje{,-original}""
+  L=$(($(perl -lne 'm|trackerimage.jpg.php| && print $.' "$mensaje")-1))
+  L2=$(($(perl -lne 'm|trackerimage.jpg.php| && print $.' "$mensaje")+1))
+fi
+
+# ---------- Sending Emails ---------- #
+if  [[ "${FULL}" -ge 3   ]]; then
+  # TEXT='Image Tracking with url shortening & attachment '
+  # notice--
+  shortner--
+
+else
+
+  if [[ "${FULL}" -ge 2  ]]; then
+    # Option -x select
+    # TEXT='Image Tracking with url shortening '
+    # notice--
+    shortner--
+	 fi
+
+  if [[ "${FULL}" -eq 1  ]]; then
+    # Option -xx select & xxx
+    #  TEXT='Image Tracking without url shortening '
+    #  notice--
+    basic--
+ 	fi
+fi
+
+
+TEXT=' Happy phishing....'
+notice--
+
+
+# ---------- End of Configuration ---------- #
+
+# ---------- Done ---------- #
+
+exit 0
+
+
+
+
+# COSAS POR IMPLEMENTAR : aplicar libreria para hacer url encode para la direccion web
+#   Aplicar permisos adecuados al servidor de apache para que  solo se puedan ver publicamente los archivos que querramos
+#   Crear base de datos y tabla para Mysql desde el script.
+#   Establecer errores.
+#   Crear una Carpeta por Campaña
+#   Poder color a los output
+#   Emplear el script con Protocol outh2

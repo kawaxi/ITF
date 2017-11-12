@@ -1,0 +1,54 @@
+#!/bin/bash
+#Autor: @Kawaxi
+
+basic--()
+{
+
+#Option XX
+if [[ "${EX}" -eq 1  ]]; then
+
+
+  echo ' No URL Shortning. \n\n'
+
+  ### Wee need to make to start on id 0 everytime , even if we dont indicate it.
+    sed -i -e 's/'"subscriptionID=."'/'"subscriptionID=${id}"'/g' "$mensaje"
+    for email in $(cat emails.txt); do
+    let id++
+    i=$((${id}-1))
+    [ -e "${mensaje}" ] && cp $mensaje{,.bkup"${id}"}
+    sed -i -e 's/'"subscriptionID=${i}"'/'"subscriptionID=${id}"'/g' ""$mensaje{,.bkup"${id}"}""
+
+      sendEmail -t "$email"  -f "$senderfull" -s "$smtp" -u "$subject" \
+      -o message-content-type=html -o message-file=""$mensaje{,.bkup"${id}"}"" \
+      -o reply-to="$senderfull" -o tls=auto \
+      || echo -e ' '${RED}'[!] Issue when sending emails, can you reach SMTP? '${RESET} 1>&2
+
+
+      #swaks  -f "$senderfull" -t "$email" --body ""$mensaje{,.bkup"${id}"}"" --add-header "MIME-Version: 1.0" \
+      #--add-header "Content-Type: text/html" add--header "Subject: Test mail" --server 127.0.0.1:25
+    echo -e "${WHITE}Id=" ${GREEN}${id}"${WHITE} & email sent to: ${GREEN} ${email} ${RESET}"
+
+    done
+
+else
+
+    #Option xxx Selected
+    if [[ "${EX}" -eq 2 ]]; then
+
+        for email in $(cat emails.txt); do
+        let id++
+        [ -e "${mensaje}" ] && cp $mensaje{,.bkup"${id}"}
+
+         sendEmail -t "$email"  -f "$senderfull" -s "$smtp" -u "$subject"  \
+         -o message-content-type=html -o message-file=""$mensaje{,.bkup"${id}"}"" \
+         -o reply-to="$senderfull" -o tls=auto -a "$attach" \
+          || echo -e ' '${RED}'[!] Issue when sending emails, can you reach SMTP? '${RESET} 1>&2
+
+           echo -e "${WHITE} Email: ${GREEN}${id}${WHITE} sent to:${GREEN} ${email} ${RESET}"
+         done
+    fi
+
+
+fi
+
+}

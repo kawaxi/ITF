@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#-- Function help ####
+
+
+help--(){
+
+  echo -e ''${WHITE}"[*] Usage: $0 -option --module"
+  echo -e "[*] Options:"
+
+  #echo -e "[*] -f                       Image Tracking with short url "
+  echo -e "[*] -x                       Image Tracking with short URL "
+  echo -e "[*] -xx                      Image Tracking without short URL "
+  echo -e "[*] -xxx                     Basic Email with an attach file "
+  echo -e "[*]  Extra Arguments : "
+
+  echo -e ''${RED}''
+  echo -e "[*]  from                    It indicates sender:'Frankie Rivers <me@pwned.com>'"
+  echo -e "[*]  smtp                    It specifies the smtp server, i.e localhost:25"
+  echo -e "[*]  subject                 It specifies the subject to use in the email"
+  echo -e "[*]  server                  It specificies your Image Tracking Server"
+  echo -e "[*]  A || a                  It indicates the attach file -a /root/file "
+  exit 0;
+}
+
+#### Function short help ####
+shorth--(){
+  TEXT=" ¡¡¡¡  Please provide a valid argument for the script !!!!"
+  centrar-- ;   printf "%${A}s$WHITE$TEXT\n\n"
+
+  echo -e "[*] Usage:  		     $0 -option --module"
+  echo -e "[*] options:"
+
+  #echo -e "[*] -f                       Image Tracking with url shortening & attachment "
+  echo -e "[*] -x                       Image Tracking whith URL shortening "
+  echo -e ''${RED}"[*] -xx                      Image Tracking without URL shortening "
+  echo -e "[*] -xxx                     Basic Email with an attach file "
+  echo -e "[*] -h                 	     Shows Full Help with options and modules"
+
+}
