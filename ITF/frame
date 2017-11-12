@@ -25,9 +25,9 @@ server='' ;
 # This is your stmp server, if your using Open relay use ' localhost:25 ' .
 smtp='localhost:25' ;
 
-# remplazar las variables server y smtp en el script.
-API_KEY=R_b81894cd600b4fcda75a45abdcdaeb75;
-login=setintlabs ;
+# Api key for bit service.
+API_KEY="your api key";
+login="your login";
 
 
 
